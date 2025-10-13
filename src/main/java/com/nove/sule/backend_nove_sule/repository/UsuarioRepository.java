@@ -34,8 +34,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Page<Usuario> findByEstado(Estado estado, Pageable pageable);
 
     @Query("SELECT u FROM Usuario u WHERE " +
-           "(:username IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :username, '%'))) AND " +
-           "(:email IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%'))) AND " +
+           "(COALESCE(:username, '') = '' OR LOWER(u.username) LIKE LOWER(CONCAT('%', :username, '%'))) AND " +
+           "(COALESCE(:email, '') = '' OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%'))) AND " +
            "(:rol IS NULL OR u.rol = :rol) AND " +
            "(:estado IS NULL OR u.estado = :estado)")
     Page<Usuario> findByFilters(@Param("username") String username,
