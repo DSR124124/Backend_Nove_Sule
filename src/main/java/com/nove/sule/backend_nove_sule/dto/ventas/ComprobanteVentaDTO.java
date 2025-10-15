@@ -1,6 +1,5 @@
 package com.nove.sule.backend_nove_sule.dto.ventas;
 
-import com.nove.sule.backend_nove_sule.dto.catalogo.ProductoBasicoDTO;
 import com.nove.sule.backend_nove_sule.entity.enums.Estado;
 import com.nove.sule.backend_nove_sule.entity.enums.MedioPago;
 import com.nove.sule.backend_nove_sule.entity.enums.Moneda;
@@ -49,7 +48,9 @@ public class ComprobanteVentaDTO {
     @Builder
     public static class DetalleComprobanteDTO {
         private Long id;
-        private ProductoBasicoDTO producto;
+        private Long productoId;
+        private String productoCodigo;
+        private String productoNombre;
         private BigDecimal cantidad;
         private BigDecimal precioUnitario;
         private BigDecimal descuento;

@@ -31,18 +31,29 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
            "(:nombres IS NULL OR LOWER(c.nombres) LIKE LOWER(CONCAT('%', :nombres, '%'))) AND " +
            "(:apellidos IS NULL OR LOWER(c.apellidos) LIKE LOWER(CONCAT('%', :apellidos, '%'))) AND " +
            "(:razonSocial IS NULL OR LOWER(c.razonSocial) LIKE LOWER(CONCAT('%', :razonSocial, '%'))) AND " +
-           "(:numeroDocumento IS NULL OR c.numeroDocumento LIKE CONCAT('%', :numeroDocumento, '%')) AND " +
+           "(:email IS NULL OR LOWER(c.email) LIKE LOWER(CONCAT('%', :email, '%'))) AND " +
            "(:tipoDocumento IS NULL OR c.tipoDocumento = :tipoDocumento) AND " +
            "(:estado IS NULL OR c.estado = :estado)")
     Page<Cliente> findByFilters(@Param("nombres") String nombres,
                                @Param("apellidos") String apellidos,
                                @Param("razonSocial") String razonSocial,
-                               @Param("numeroDocumento") String numeroDocumento,
+                               @Param("email") String email,
                                @Param("tipoDocumento") TipoDocumento tipoDocumento,
                                @Param("estado") Estado estado,
                                Pageable pageable);
 
-    List<Cliente> findByTipoDocumento(TipoDocumento tipoDocumento);
+    List<Cliente> findByTipoDocumentoOrderByNombresAsc(TipoDocumento tipoDocumento);
+
+    Optional<Cliente> findByEmail(String email);
+
+    boolean existsByEmail(String email);
+
+    @Query("SELECT c FROM Cliente c WHERE " +
+           "(LOWER(c.nombres) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+           "LOWER(c.apellidos) LIKE LOWER(CONCAT('%', :nombre, '%')) OR " +
+           "LOWER(c.razonSocial) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
+           "c.estado = 'ACTIVO'")
+    List<Cliente> findByNombreContainingIgnoreCase(@Param("nombre") String nombre);
 
     @Query("SELECT c FROM Cliente c WHERE c.estado = 'ACTIVO' ORDER BY c.nombres ASC, c.razonSocial ASC")
     List<Cliente> findAllActiveOrderByName();

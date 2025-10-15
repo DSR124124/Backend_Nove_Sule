@@ -173,4 +173,12 @@ public class UsuarioController {
         boolean existe = usuarioService.existeEmail(email);
         return ResponseEntity.ok(ApiResponseDTO.success(existe));
     }
+
+    @Operation(summary = "Buscar usuarios por texto", description = "Busca usuarios por texto en username, email o nombres")
+    @GetMapping("/buscar")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('GERENTE')")
+    public ResponseEntity<ApiResponseDTO<List<UsuarioDTO>>> buscarPorTexto(@RequestParam String texto) {
+        List<UsuarioDTO> usuarios = usuarioService.buscarPorTexto(texto);
+        return ResponseEntity.ok(ApiResponseDTO.success(usuarios));
+    }
 }

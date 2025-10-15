@@ -73,4 +73,9 @@ public interface CategoriaService {
      * Actualiza el orden de una categoría
      */
     CategoriaBasicaDTO actualizarOrden(Long id, Integer nuevoOrden);
+
+    /**
+     * Busca categorías por texto en nombre o descripción
+     */
+    List<CategoriaBasicaDTO> buscarPorTexto(String texto);
 }

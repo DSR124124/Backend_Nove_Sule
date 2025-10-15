@@ -2,6 +2,8 @@ package com.nove.sule.backend_nove_sule.service;
 
 import com.nove.sule.backend_nove_sule.dto.common.PaginatedResponseDTO;
 import com.nove.sule.backend_nove_sule.dto.ventas.ComprobanteVentaDTO;
+import com.nove.sule.backend_nove_sule.dto.ventas.ProductoVendidoDTO;
+import com.nove.sule.backend_nove_sule.dto.ventas.ResumenVentasDTO;
 import com.nove.sule.backend_nove_sule.entity.enums.Estado;
 import com.nove.sule.backend_nove_sule.entity.enums.TipoComprobante;
 import org.springframework.data.domain.Pageable;
@@ -55,30 +57,45 @@ public interface VentaService {
     /**
      * Anula un comprobante de venta
      */
-    ComprobanteVentaDTO anularComprobante(Long id, String motivo);
+    ComprobanteVentaDTO anularComprobante(Long id);
 
     /**
-     * Genera el siguiente número para un tipo y serie
+     * Lista comprobantes por cliente
      */
-    String generarSiguienteNumero(TipoComprobante tipo, String serie);
+    List<ComprobanteVentaDTO> listarPorCliente(Long clienteId);
+
+    /**
+     * Lista comprobantes por rango de fechas
+     */
+    List<ComprobanteVentaDTO> listarPorFecha(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
     /**
      * Calcula el total de ventas por rango de fechas
      */
-    BigDecimal calcularTotalVentasPorFecha(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+    BigDecimal calcularTotalVentas(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
     /**
-     * Cuenta el número de ventas por rango de fechas
+     * Cuenta el número de comprobantes por rango de fechas
      */
-    Long contarVentasPorFecha(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+    Long contarComprobantes(LocalDateTime fechaInicio, LocalDateTime fechaFin);
 
     /**
-     * Verifica disponibilidad de stock antes de vender
+     * Genera el siguiente número de comprobante para un tipo y serie
      */
-    boolean verificarDisponibilidadStock(List<ComprobanteVentaDTO.DetalleComprobanteDTO> detalles);
+    String generarNumeroComprobante(TipoComprobante tipoComprobante, String serie);
 
     /**
-     * Actualiza el stock después de una venta
+     * Verifica si existe un número de comprobante
      */
-    void actualizarStockPorVenta(Long comprobanteId);
+    boolean existeNumeroComprobante(TipoComprobante tipoComprobante, String serie, String numero);
+
+    /**
+     * Obtiene un resumen de ventas por rango de fechas
+     */
+    ResumenVentasDTO obtenerResumenVentas(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+
+    /**
+     * Obtiene los productos más vendidos en un rango de fechas
+     */
+    List<ProductoVendidoDTO> obtenerProductosMasVendidos(LocalDateTime fechaInicio, LocalDateTime fechaFin, int limite);
 }

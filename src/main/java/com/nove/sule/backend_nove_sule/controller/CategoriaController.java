@@ -113,4 +113,30 @@ public class CategoriaController {
                 .body(ApiResponseDTO.error(e.getMessage()));
         }
     }
+
+    @Operation(summary = "Buscar categorías por texto", description = "Busca categorías por texto en nombre o descripción")
+    @GetMapping("/buscar")
+    public ResponseEntity<ApiResponseDTO<List<CategoriaBasicaDTO>>> buscarPorTexto(@RequestParam String texto) {
+        List<CategoriaBasicaDTO> categorias = categoriaService.buscarPorTexto(texto);
+        return ResponseEntity.ok(ApiResponseDTO.success(categorias));
+    }
+
+    @Operation(summary = "Cambiar estado", description = "Cambia el estado de una categoría")
+    @PatchMapping("/{id}/estado")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('GERENTE')")
+    public ResponseEntity<ApiResponseDTO<CategoriaBasicaDTO>> cambiarEstado(
+            @PathVariable Long id,
+            @RequestParam Estado estado) {
+        try {
+            CategoriaBasicaDTO categoria = categoriaService.cambiarEstado(id, estado);
+            
+            return ResponseEntity.ok(
+                ApiResponseDTO.success("Estado cambiado exitosamente", categoria));
+                
+        } catch (Exception e) {
+            log.error("Error cambiando estado de la categoría {}: {}", id, e.getMessage());
+            return ResponseEntity.badRequest()
+                .body(ApiResponseDTO.error(e.getMessage()));
+        }
+    }
 }

@@ -203,4 +203,35 @@ public class ProductoController {
         boolean existe = productoService.existeCodigoBarras(codigoBarras);
         return ResponseEntity.ok(ApiResponseDTO.success(existe));
     }
+
+    @Operation(summary = "Buscar productos por texto", description = "Busca productos por texto en nombre o descripción")
+    @GetMapping("/buscar")
+    public ResponseEntity<ApiResponseDTO<List<ProductoDTO>>> buscarPorTexto(@RequestParam String texto) {
+        List<ProductoDTO> productos = productoService.buscarPorTexto(texto);
+        return ResponseEntity.ok(ApiResponseDTO.success(productos));
+    }
+
+    @Operation(summary = "Buscar productos por rango de precio", description = "Busca productos dentro de un rango de precios")
+    @GetMapping("/precio-rango")
+    public ResponseEntity<ApiResponseDTO<List<ProductoDTO>>> buscarPorRangoPrecio(
+            @RequestParam(required = false) Double precioMin,
+            @RequestParam(required = false) Double precioMax) {
+        List<ProductoDTO> productos = productoService.buscarPorRangoPrecio(precioMin, precioMax);
+        return ResponseEntity.ok(ApiResponseDTO.success(productos));
+    }
+
+    @Operation(summary = "Productos por proveedor", description = "Lista productos de un proveedor específico")
+    @GetMapping("/proveedor/{proveedorId}")
+    public ResponseEntity<ApiResponseDTO<List<ProductoDTO>>> listarPorProveedor(@PathVariable Long proveedorId) {
+        List<ProductoDTO> productos = productoService.listarPorProveedor(proveedorId);
+        return ResponseEntity.ok(ApiResponseDTO.success(productos));
+    }
+
+    @Operation(summary = "Productos más vendidos", description = "Lista los productos más vendidos")
+    @GetMapping("/mas-vendidos")
+    public ResponseEntity<ApiResponseDTO<List<ProductoDTO>>> listarMasVendidos(
+            @RequestParam(defaultValue = "10") int limite) {
+        List<ProductoDTO> productos = productoService.listarMasVendidos(limite);
+        return ResponseEntity.ok(ApiResponseDTO.success(productos));
+    }
 }

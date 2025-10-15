@@ -101,4 +101,19 @@ public interface ProductoService {
      * Verifica si existe un código de barras
      */
     boolean existeCodigoBarras(String codigoBarras);
+
+    /**
+     * Busca productos por texto en nombre o descripción
+     */
+    List<ProductoDTO> buscarPorTexto(String texto);
+
+    /**
+     * Busca productos por rango de precio
+     */
+    List<ProductoDTO> buscarPorRangoPrecio(Double precioMin, Double precioMax);
+
+    /**
+     * Lista los productos más vendidos
+     */
+    List<ProductoDTO> listarMasVendidos(int limite);
 }

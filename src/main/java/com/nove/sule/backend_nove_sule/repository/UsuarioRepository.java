@@ -46,4 +46,12 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.empleado WHERE u.id = :id")
     Optional<Usuario> findByIdWithEmpleado(@Param("id") Long id);
+
+    @Query("SELECT u FROM Usuario u WHERE " +
+           "(LOWER(u.username) LIKE LOWER(CONCAT('%', :texto, '%')) OR " +
+           "LOWER(u.email) LIKE LOWER(CONCAT('%', :texto, '%')) OR " +
+           "LOWER(u.empleado.nombres) LIKE LOWER(CONCAT('%', :texto, '%')) OR " +
+           "LOWER(u.empleado.apellidos) LIKE LOWER(CONCAT('%', :texto, '%'))) AND " +
+           "u.estado = 'ACTIVO'")
+    List<Usuario> findByTextoContaining(@Param("texto") String texto);
 }

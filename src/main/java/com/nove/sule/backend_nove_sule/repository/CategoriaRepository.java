@@ -38,4 +38,10 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
     @Query("SELECT MAX(c.orden) FROM Categoria c")
     Integer findMaxOrden();
+
+    @Query("SELECT c FROM Categoria c WHERE " +
+           "(LOWER(c.nombre) LIKE LOWER(CONCAT('%', :texto, '%')) OR " +
+           "LOWER(c.descripcion) LIKE LOWER(CONCAT('%', :texto, '%'))) AND " +
+           "c.estado = 'ACTIVO'")
+    List<Categoria> findByTextoContaining(@Param("texto") String texto);
 }

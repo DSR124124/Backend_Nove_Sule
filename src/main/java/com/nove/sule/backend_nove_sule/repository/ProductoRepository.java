@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,4 +60,28 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
     @Query("SELECT p FROM Producto p WHERE p.proveedor.id = :proveedorId AND p.estado = 'ACTIVO'")
     List<Producto> findByProveedorId(@Param("proveedorId") Long proveedorId);
+
+    @Query("SELECT p FROM Producto p WHERE " +
+           "(LOWER(p.nombre) LIKE LOWER(CONCAT('%', :texto, '%')) OR " +
+           "LOWER(p.descripcion) LIKE LOWER(CONCAT('%', :texto, '%'))) AND " +
+           "p.estado = 'ACTIVO'")
+    List<Producto> findByTextoContaining(@Param("texto") String texto);
+
+    @Query("SELECT p FROM Producto p WHERE " +
+           "(:precioMin IS NULL OR p.precio >= :precioMin) AND " +
+           "(:precioMax IS NULL OR p.precio <= :precioMax) AND " +
+           "p.estado = 'ACTIVO'")
+    List<Producto> findByRangoPrecio(@Param("precioMin") Double precioMin, 
+                                     @Param("precioMax") Double precioMax);
+
+    @Query("SELECT p FROM Producto p WHERE p.estado = 'ACTIVO' " +
+           "ORDER BY p.nombre ASC")
+    List<Producto> findMasVendidos(Pageable pageable);
+
+    @Query("SELECT p FROM Producto p WHERE p.stock <= p.stockMinimo")
+    List<Producto> findByStockLessThanEqualStockMinimo();
+
+    @Query("SELECT p FROM Producto p WHERE p.fechaVencimiento < :fechaLimite AND p.estado = :estado")
+    List<Producto> findByFechaVencimientoBeforeAndEstado(@Param("fechaLimite") LocalDate fechaLimite, 
+                                                         @Param("estado") Estado estado);
 }

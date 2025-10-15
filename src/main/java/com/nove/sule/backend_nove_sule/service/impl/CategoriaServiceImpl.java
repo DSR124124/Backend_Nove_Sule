@@ -69,7 +69,7 @@ public class CategoriaServiceImpl implements CategoriaService {
         // Validar nombre único si cambió
         if (!categoria.getNombre().equals(categoriaDTO.getNombre()) && 
             existeNombre(categoriaDTO.getNombre())) {
-            throw new RuntimeException("Ya existe una categoría with ese nombre");
+            throw new RuntimeException("Ya existe una categoría con ese nombre");
         }
 
         // Actualizar campos
@@ -224,5 +224,14 @@ public class CategoriaServiceImpl implements CategoriaService {
         log.info("Orden de categoría actualizado: {} -> {}", id, nuevoOrden);
         
         return categoriaMapper.toDTO(categoriaActualizada);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CategoriaBasicaDTO> buscarPorTexto(String texto) {
+        return categoriaRepository.findByTextoContaining(texto)
+            .stream()
+            .map(categoriaMapper::toDTO)
+            .toList();
     }
 }

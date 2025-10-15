@@ -65,4 +65,20 @@ public interface ComprobanteVentaRepository extends JpaRepository<ComprobanteVen
            "c.fechaEmision >= :fechaInicio AND c.fechaEmision <= :fechaFin AND c.estado = 'ACTIVO'")
     Long countByFechaRange(@Param("fechaInicio") LocalDateTime fechaInicio,
                            @Param("fechaFin") LocalDateTime fechaFin);
+
+    List<ComprobanteVenta> findByClienteIdOrderByFechaEmisionDesc(Long clienteId);
+
+    List<ComprobanteVenta> findByFechaEmisionBetweenOrderByFechaEmisionDesc(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+
+    @Query("SELECT COALESCE(SUM(c.total), 0) FROM ComprobanteVenta c WHERE " +
+           "c.fechaEmision >= :fechaInicio AND c.fechaEmision <= :fechaFin AND c.estado = :estado")
+    BigDecimal calcularTotalVentas(@Param("fechaInicio") LocalDateTime fechaInicio,
+                                   @Param("fechaFin") LocalDateTime fechaFin,
+                                   @Param("estado") Estado estado);
+
+    @Query("SELECT COUNT(c) FROM ComprobanteVenta c WHERE " +
+           "c.fechaEmision >= :fechaInicio AND c.fechaEmision <= :fechaFin AND c.estado = :estado")
+    Long contarComprobantes(@Param("fechaInicio") LocalDateTime fechaInicio,
+                            @Param("fechaFin") LocalDateTime fechaFin,
+                            @Param("estado") Estado estado);
 }

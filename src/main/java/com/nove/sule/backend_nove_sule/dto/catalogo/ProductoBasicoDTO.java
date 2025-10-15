@@ -5,10 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 /**
- * DTO básico para Producto
+ * DTO básico para Producto (versión simplificada para listados y referencias)
  */
 @Data
 @NoArgsConstructor
@@ -17,10 +15,8 @@ import java.math.BigDecimal;
 public class ProductoBasicoDTO {
 
     private Long id;
-    private String nombre;
     private String codigo;
-    private BigDecimal precio;
-    private Integer stock;
-    private String unidad;
+    private String nombre;
+    private String descripcion;
     private String imagen;
 }

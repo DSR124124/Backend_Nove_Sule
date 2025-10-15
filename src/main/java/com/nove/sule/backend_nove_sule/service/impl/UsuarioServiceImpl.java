@@ -224,4 +224,13 @@ public class UsuarioServiceImpl implements UsuarioService {
         
         log.info("Contraseña actualizada exitosamente");
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UsuarioDTO> buscarPorTexto(String texto) {
+        return usuarioRepository.findByTextoContaining(texto)
+            .stream()
+            .map(usuarioMapper::toDTO)
+            .toList();
+    }
 }

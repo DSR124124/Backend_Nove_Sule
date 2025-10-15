@@ -85,4 +85,9 @@ public interface UsuarioService {
      * Cambia la contraseña de un usuario
      */
     void cambiarPassword(Long id, String nuevaPassword);
+
+    /**
+     * Busca usuarios por texto en username, email o nombres
+     */
+    List<UsuarioDTO> buscarPorTexto(String texto);
 }

@@ -297,4 +297,32 @@ public class ProductoServiceImpl implements ProductoService {
     public boolean existeCodigoBarras(String codigoBarras) {
         return productoRepository.existsByCodigoBarras(codigoBarras);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductoDTO> buscarPorTexto(String texto) {
+        return productoRepository.findByTextoContaining(texto)
+            .stream()
+            .map(productoMapper::toDTO)
+            .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductoDTO> buscarPorRangoPrecio(Double precioMin, Double precioMax) {
+        return productoRepository.findByRangoPrecio(precioMin, precioMax)
+            .stream()
+            .map(productoMapper::toDTO)
+            .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductoDTO> listarMasVendidos(int limite) {
+        Pageable pageable = Pageable.ofSize(limite);
+        return productoRepository.findMasVendidos(pageable)
+            .stream()
+            .map(productoMapper::toDTO)
+            .toList();
+    }
 }
