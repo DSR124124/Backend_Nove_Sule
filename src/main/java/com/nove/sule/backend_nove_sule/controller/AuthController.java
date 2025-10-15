@@ -3,14 +3,20 @@ package com.nove.sule.backend_nove_sule.controller;
 import com.nove.sule.backend_nove_sule.dto.auth.LoginRequestDTO;
 import com.nove.sule.backend_nove_sule.dto.auth.LoginResponseDTO;
 import com.nove.sule.backend_nove_sule.dto.common.ApiResponseDTO;
+import com.nove.sule.backend_nove_sule.dto.usuario.UsuarioDTO;
+import com.nove.sule.backend_nove_sule.mapper.UsuarioMapper;
 import com.nove.sule.backend_nove_sule.service.AuthService;
+import com.nove.sule.backend_nove_sule.service.UsuarioService;
 import com.nove.sule.backend_nove_sule.util.Constants;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -20,10 +26,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(Constants.API_BASE_PATH + "/auth")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Autenticación", description = "Endpoints para autenticación y autorización")
 public class AuthController {
 
     private final AuthService authService;
+    private final UsuarioService usuarioService;
+    private final UsuarioMapper usuarioMapper;
 
     @Operation(summary = "Iniciar sesión", description = "Autentica un usuario y devuelve un token JWT")
     @PostMapping("/login")
@@ -74,5 +83,26 @@ public class AuthController {
             Constants.SUCCESS_LOGOUT, 
             "Sesión cerrada exitosamente"
         ));
+    }
+
+    @Operation(summary = "Obtener perfil", description = "Obtiene el perfil del usuario autenticado")
+    @GetMapping("/profile")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR', 'CAJERO')")
+    public ResponseEntity<ApiResponseDTO<UsuarioDTO>> getProfile(Authentication authentication) {
+        try {
+            String username = authentication.getName();
+            log.info("Obteniendo perfil para usuario: {}", username);
+            
+            UsuarioDTO usuario = usuarioService.buscarPorUsername(username)
+                .map(usuarioMapper::toDTO)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            
+            return ResponseEntity.ok(ApiResponseDTO.success("Perfil obtenido exitosamente", usuario));
+            
+        } catch (Exception e) {
+            log.error("Error obteniendo perfil: {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                .body(ApiResponseDTO.error(e.getMessage()));
+        }
     }
 }
