@@ -26,11 +26,12 @@ public interface MarcaRepository extends JpaRepository<Marca, Long> {
 
     Page<Marca> findByEstado(Estado estado, Pageable pageable);
 
-    @Query("SELECT m FROM Marca m WHERE " +
-           "(:nombre IS NULL OR LOWER(m.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
-           "(:estado IS NULL OR m.estado = :estado)")
+    @Query(value = "SELECT * FROM marcas m WHERE " +
+                   "(:nombre IS NULL OR m.nombre::text ILIKE CONCAT('%', :nombre, '%')) AND " +
+                   "(:estado IS NULL OR m.estado = CAST(:estado AS VARCHAR))", 
+           nativeQuery = true)
     Page<Marca> findByFilters(@Param("nombre") String nombre,
-                             @Param("estado") Estado estado,
+                             @Param("estado") String estado,
                              Pageable pageable);
 
     @Query("SELECT m FROM Marca m WHERE m.estado = 'ACTIVO' ORDER BY m.nombre ASC")

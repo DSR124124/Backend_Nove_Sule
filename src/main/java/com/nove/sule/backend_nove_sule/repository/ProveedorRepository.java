@@ -30,15 +30,16 @@ public interface ProveedorRepository extends JpaRepository<Proveedor, Long> {
 
     Page<Proveedor> findByEstado(Estado estado, Pageable pageable);
 
-    @Query("SELECT p FROM Proveedor p WHERE " +
-           "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
-           "(:ruc IS NULL OR p.ruc LIKE CONCAT('%', :ruc, '%')) AND " +
-           "(:email IS NULL OR LOWER(p.email) LIKE LOWER(CONCAT('%', :email, '%'))) AND " +
-           "(:estado IS NULL OR p.estado = :estado)")
+    @Query(value = "SELECT * FROM proveedores p WHERE " +
+                   "(:nombre IS NULL OR p.nombre::text ILIKE CONCAT('%', :nombre, '%')) AND " +
+                   "(:ruc IS NULL OR p.ruc ILIKE CONCAT('%', :ruc, '%')) AND " +
+                   "(:email IS NULL OR p.email::text ILIKE CONCAT('%', :email, '%')) AND " +
+                   "(:estado IS NULL OR p.estado = CAST(:estado AS VARCHAR))", 
+           nativeQuery = true)
     Page<Proveedor> findByFilters(@Param("nombre") String nombre,
                                  @Param("ruc") String ruc,
                                  @Param("email") String email,
-                                 @Param("estado") Estado estado,
+                                 @Param("estado") String estado,
                                  Pageable pageable);
 
     @Query("SELECT p FROM Proveedor p WHERE p.estado = 'ACTIVO' ORDER BY p.nombre ASC")

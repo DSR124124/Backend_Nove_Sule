@@ -95,7 +95,6 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     @Transactional(readOnly = true)
     public Optional<CategoriaBasicaDTO> buscarPorId(Long id) {
-        log.debug("Buscando categoría por ID: {}", id);
         
         return categoriaRepository.findById(id)
             .map(categoriaMapper::toDTO);
@@ -104,7 +103,6 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Categoria> buscarPorNombre(String nombre) {
-        log.debug("Buscando categoría por nombre: {}", nombre);
         
         return categoriaRepository.findByNombre(nombre);
     }
@@ -112,7 +110,6 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponseDTO<CategoriaBasicaDTO> listarTodos(Pageable pageable) {
-        log.debug("Listando todas las categorías con paginación");
         
         Page<Categoria> pageCategorias = categoriaRepository.findAll(pageable);
         List<CategoriaBasicaDTO> categorias = pageCategorias.getContent().stream()
@@ -134,7 +131,6 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     @Transactional(readOnly = true)
     public List<CategoriaBasicaDTO> listarPorEstado(Estado estado) {
-        log.debug("Listando categorías por estado: {}", estado);
         
         return categoriaRepository.findByEstadoOrderByOrdenAsc(estado).stream()
             .map(categoriaMapper::toDTO)
@@ -144,7 +140,6 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     @Transactional(readOnly = true)
     public List<CategoriaBasicaDTO> listarActivas() {
-        log.debug("Listando categorías activas");
         
         return categoriaRepository.findActiveCategoriesOrdered(Estado.ACTIVO).stream()
             .map(categoriaMapper::toDTO)
@@ -154,9 +149,9 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponseDTO<CategoriaBasicaDTO> buscarConFiltros(String nombre, Estado estado, Pageable pageable) {
-        log.debug("Buscando categorías con filtros - nombre: {}, estado: {}", nombre, estado);
         
-        Page<Categoria> pageCategorias = categoriaRepository.findByFilters(nombre, estado, pageable);
+        String estadoString = estado != null ? estado.name() : null;
+        Page<Categoria> pageCategorias = categoriaRepository.findByFilters(nombre, estadoString, pageable);
         List<CategoriaBasicaDTO> categorias = pageCategorias.getContent().stream()
             .map(categoriaMapper::toDTO)
             .collect(Collectors.toList());

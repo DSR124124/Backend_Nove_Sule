@@ -26,11 +26,12 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
     Page<Categoria> findByEstado(Estado estado, Pageable pageable);
 
-    @Query("SELECT c FROM Categoria c WHERE " +
-           "(:nombre IS NULL OR LOWER(c.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
-           "(:estado IS NULL OR c.estado = :estado)")
+    @Query(value = "SELECT * FROM categorias c WHERE " +
+                   "(:nombre IS NULL OR c.nombre::text ILIKE CONCAT('%', :nombre, '%')) AND " +
+                   "(:estado IS NULL OR c.estado = CAST(:estado AS VARCHAR))", 
+           nativeQuery = true)
     Page<Categoria> findByFilters(@Param("nombre") String nombre,
-                                 @Param("estado") Estado estado,
+                                 @Param("estado") String estado,
                                  Pageable pageable);
 
     @Query("SELECT c FROM Categoria c WHERE c.estado = :estado ORDER BY c.orden ASC, c.nombre ASC")
@@ -39,9 +40,10 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
     @Query("SELECT MAX(c.orden) FROM Categoria c")
     Integer findMaxOrden();
 
-    @Query("SELECT c FROM Categoria c WHERE " +
-           "(LOWER(c.nombre) LIKE LOWER(CONCAT('%', :texto, '%')) OR " +
-           "LOWER(c.descripcion) LIKE LOWER(CONCAT('%', :texto, '%'))) AND " +
-           "c.estado = 'ACTIVO'")
+    @Query(value = "SELECT * FROM categorias c WHERE " +
+                   "(c.nombre::text ILIKE CONCAT('%', :texto, '%') OR " +
+                   "c.descripcion ILIKE CONCAT('%', :texto, '%')) AND " +
+                   "c.estado = 'ACTIVO'", 
+           nativeQuery = true)
     List<Categoria> findByTextoContaining(@Param("texto") String texto);
 }
