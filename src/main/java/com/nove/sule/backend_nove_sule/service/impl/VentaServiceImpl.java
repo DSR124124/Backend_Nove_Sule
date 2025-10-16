@@ -95,7 +95,6 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional(readOnly = true)
     public Optional<ComprobanteVentaDTO> buscarComprobantePorId(Long id) {
-        log.debug("Buscando comprobante por ID: {}", id);
         
         return comprobanteVentaRepository.findById(id)
             .map(ventaMapper::toDTO);
@@ -104,7 +103,6 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional(readOnly = true)
     public Optional<ComprobanteVentaDTO> buscarPorTipoSerieNumero(TipoComprobante tipo, String serie, String numero) {
-        log.debug("Buscando comprobante: {} {} {}", tipo, serie, numero);
         
         return comprobanteVentaRepository.findByTipoComprobanteAndSerieAndNumero(tipo, serie, numero)
             .map(ventaMapper::toDTO);
@@ -113,7 +111,6 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponseDTO<ComprobanteVentaDTO> listarComprobantes(Pageable pageable) {
-        log.debug("Listando comprobantes con paginación");
         
         Page<ComprobanteVenta> pageComprobantes = comprobanteVentaRepository.findAll(pageable);
         List<ComprobanteVentaDTO> comprobantes = pageComprobantes.getContent().stream()
@@ -135,7 +132,6 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional(readOnly = true)
     public List<ComprobanteVentaDTO> listarPorEstado(Estado estado) {
-        log.debug("Listando comprobantes por estado: {}", estado);
         
         return comprobanteVentaRepository.findByEstadoOrderByFechaEmisionDesc(estado).stream()
             .map(ventaMapper::toDTO)
@@ -151,11 +147,10 @@ public class VentaServiceImpl implements VentaService {
                                                                       LocalDateTime fechaFin,
                                                                       Estado estado,
                                                                       Pageable pageable) {
-        log.debug("Buscando comprobantes con filtros - tipo: {}, serie: {}, numero: {}, cliente: {}, estado: {}", 
-                 tipoComprobante, serie, numero, clienteId, estado);
         
         Page<ComprobanteVenta> pageComprobantes = comprobanteVentaRepository.findByFilters(
-            tipoComprobante, serie, numero, clienteId, fechaInicio, fechaFin, estado, pageable);
+            tipoComprobante != null ? tipoComprobante.name() : null, serie, numero, clienteId, fechaInicio, fechaFin, 
+            estado != null ? estado.name() : null, pageable);
         
         List<ComprobanteVentaDTO> comprobantes = pageComprobantes.getContent().stream()
             .map(ventaMapper::toDTO)
@@ -195,7 +190,6 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional(readOnly = true)
     public List<ComprobanteVentaDTO> listarPorCliente(Long clienteId) {
-        log.debug("Listando comprobantes por cliente: {}", clienteId);
         
         return comprobanteVentaRepository.findByClienteIdOrderByFechaEmisionDesc(clienteId).stream()
             .map(ventaMapper::toDTO)
@@ -205,7 +199,6 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional(readOnly = true)
     public List<ComprobanteVentaDTO> listarPorFecha(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        log.debug("Listando comprobantes por fecha: {} - {}", fechaInicio, fechaFin);
         
         return comprobanteVentaRepository.findByFechaEmisionBetweenOrderByFechaEmisionDesc(fechaInicio, fechaFin).stream()
             .map(ventaMapper::toDTO)
@@ -215,7 +208,6 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional(readOnly = true)
     public BigDecimal calcularTotalVentas(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        log.debug("Calculando total de ventas: {} - {}", fechaInicio, fechaFin);
         
         return comprobanteVentaRepository.calcularTotalVentas(fechaInicio, fechaFin, Estado.ACTIVO);
     }
@@ -223,7 +215,6 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional(readOnly = true)
     public Long contarComprobantes(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        log.debug("Contando comprobantes: {} - {}", fechaInicio, fechaFin);
         
         return comprobanteVentaRepository.contarComprobantes(fechaInicio, fechaFin, Estado.ACTIVO);
     }
@@ -231,7 +222,6 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional(readOnly = true)
     public String generarNumeroComprobante(TipoComprobante tipoComprobante, String serie) {
-        log.debug("Generando número de comprobante: {} {}", tipoComprobante, serie);
         
         String maxNumero = comprobanteVentaRepository.findMaxNumeroByTipoAndSerie(tipoComprobante, serie);
         if (maxNumero == null || maxNumero.equals("00000000")) {
@@ -250,7 +240,6 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional(readOnly = true)
     public boolean existeNumeroComprobante(TipoComprobante tipoComprobante, String serie, String numero) {
-        log.debug("Verificando existencia de comprobante: {} {} {}", tipoComprobante, serie, numero);
         
         return comprobanteVentaRepository.existsByTipoComprobanteAndSerieAndNumero(tipoComprobante, serie, numero);
     }
@@ -258,7 +247,6 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional(readOnly = true)
     public ResumenVentasDTO obtenerResumenVentas(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        log.debug("Obteniendo resumen de ventas: {} - {}", fechaInicio, fechaFin);
         
         // Obtener totales de comprobantes activos
         Long totalComprobantes = comprobanteVentaRepository.contarComprobantes(fechaInicio, fechaFin, Estado.ACTIVO);
@@ -295,7 +283,6 @@ public class VentaServiceImpl implements VentaService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductoVendidoDTO> obtenerProductosMasVendidos(LocalDateTime fechaInicio, LocalDateTime fechaFin, int limite) {
-        log.debug("Obteniendo productos más vendidos: {} - {} (límite: {})", fechaInicio, fechaFin, limite);
         
         // TODO: Implementar consulta para productos más vendidos
         // Por ahora retornamos una lista vacía

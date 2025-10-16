@@ -31,17 +31,25 @@ public interface OrdenCompraRepository extends JpaRepository<OrdenCompra, Long> 
     @Query("SELECT o FROM OrdenCompra o LEFT JOIN FETCH o.proveedor LEFT JOIN FETCH o.detalles WHERE o.id = :id")
     Optional<OrdenCompra> findByIdWithDetails(@Param("id") Long id);
 
-    @Query("SELECT o FROM OrdenCompra o WHERE " +
-           "(:numero IS NULL OR o.numero LIKE CONCAT('%', :numero, '%')) AND " +
-           "(:proveedorId IS NULL OR o.proveedor.id = :proveedorId) AND " +
-           "(:fechaInicio IS NULL OR o.fechaOrden >= :fechaInicio) AND " +
-           "(:fechaFin IS NULL OR o.fechaOrden <= :fechaFin) AND " +
-           "(:estado IS NULL OR o.estado = :estado)")
+    @Query(value = "SELECT oc.* FROM ordenes_compra oc " +
+           "WHERE (:numero IS NULL OR oc.numero LIKE CONCAT('%', :numero, '%')) " +
+           "AND (:proveedorId IS NULL OR oc.proveedor_id = :proveedorId) " +
+           "AND (:fechaInicio IS NULL OR oc.fecha_orden >= :fechaInicio) " +
+           "AND (:fechaFin IS NULL OR oc.fecha_orden <= :fechaFin) " +
+           "AND (:estado IS NULL OR oc.estado = :estado) " +
+           "ORDER BY oc.fecha_orden DESC",
+           countQuery = "SELECT COUNT(*) FROM ordenes_compra oc " +
+           "WHERE (:numero IS NULL OR oc.numero LIKE CONCAT('%', :numero, '%')) " +
+           "AND (:proveedorId IS NULL OR oc.proveedor_id = :proveedorId) " +
+           "AND (:fechaInicio IS NULL OR oc.fecha_orden >= :fechaInicio) " +
+           "AND (:fechaFin IS NULL OR oc.fecha_orden <= :fechaFin) " +
+           "AND (:estado IS NULL OR oc.estado = :estado)",
+           nativeQuery = true)
     Page<OrdenCompra> findByFilters(@Param("numero") String numero,
                                    @Param("proveedorId") Long proveedorId,
                                    @Param("fechaInicio") LocalDate fechaInicio,
                                    @Param("fechaFin") LocalDate fechaFin,
-                                   @Param("estado") EstadoOrdenCompra estado,
+                                   @Param("estado") String estado,
                                    Pageable pageable);
 
     @Query("SELECT COALESCE(MAX(CAST(SUBSTRING(o.numero, 4) AS INTEGER)), 0) FROM OrdenCompra o " +

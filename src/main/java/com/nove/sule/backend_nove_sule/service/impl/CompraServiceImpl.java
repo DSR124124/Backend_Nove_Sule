@@ -148,7 +148,6 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional(readOnly = true)
     public Optional<OrdenCompraDTO> buscarOrdenCompraPorId(Long id) {
-        log.debug("Buscando orden de compra por ID: {}", id);
         
         return ordenCompraRepository.findByIdWithDetails(id)
             .map(compraMapper::toDTO);
@@ -157,7 +156,6 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional(readOnly = true)
     public Optional<OrdenCompraDTO> buscarPorNumero(String numero) {
-        log.debug("Buscando orden de compra por número: {}", numero);
         
         return ordenCompraRepository.findByNumero(numero)
             .map(compraMapper::toDTO);
@@ -166,7 +164,6 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponseDTO<OrdenCompraDTO> listarOrdenesCompra(Pageable pageable) {
-        log.debug("Listando órdenes de compra con paginación");
         
         Page<OrdenCompra> pageOrdenes = ordenCompraRepository.findAll(pageable);
         List<OrdenCompraDTO> ordenes = pageOrdenes.getContent().stream()
@@ -188,7 +185,6 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional(readOnly = true)
     public List<OrdenCompraDTO> listarPorEstado(EstadoOrdenCompra estado) {
-        log.debug("Listando órdenes de compra por estado: {}", estado);
         
         return ordenCompraRepository.findByEstadoOrderByFechaOrdenDesc(estado).stream()
             .map(compraMapper::toDTO)
@@ -203,11 +199,9 @@ public class CompraServiceImpl implements CompraService {
                                                                  LocalDate fechaFin,
                                                                  EstadoOrdenCompra estado,
                                                                  Pageable pageable) {
-        log.debug("Buscando órdenes de compra con filtros - número: {}, proveedor: {}, estado: {}", 
-                 numero, proveedorId, estado);
         
         Page<OrdenCompra> pageOrdenes = ordenCompraRepository.findByFilters(
-            numero, proveedorId, fechaInicio, fechaFin, estado, pageable);
+            numero, proveedorId, fechaInicio, fechaFin, estado != null ? estado.name() : null, pageable);
         
         List<OrdenCompraDTO> ordenes = pageOrdenes.getContent().stream()
             .map(compraMapper::toDTO)
@@ -281,7 +275,6 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional(readOnly = true)
     public List<OrdenCompraDTO> listarPorProveedor(Long proveedorId) {
-        log.debug("Listando órdenes de compra por proveedor: {}", proveedorId);
         
         return ordenCompraRepository.findByProveedorId(proveedorId).stream()
             .map(compraMapper::toDTO)
@@ -291,7 +284,6 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional(readOnly = true)
     public List<OrdenCompraDTO> listarPorFecha(LocalDate fechaInicio, LocalDate fechaFin) {
-        log.debug("Listando órdenes de compra por fecha: {} - {}", fechaInicio, fechaFin);
         
         return ordenCompraRepository.findByFilters(null, null, fechaInicio, fechaFin, null, Pageable.unpaged())
             .getContent().stream()
@@ -302,7 +294,6 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional(readOnly = true)
     public BigDecimal calcularTotalCompras(LocalDate fechaInicio, LocalDate fechaFin) {
-        log.debug("Calculando total de compras: {} - {}", fechaInicio, fechaFin);
         
         return ordenCompraRepository.sumTotalByFechaRange(fechaInicio, fechaFin);
     }
@@ -310,7 +301,6 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional(readOnly = true)
     public Long contarOrdenesCompra(LocalDate fechaInicio, LocalDate fechaFin) {
-        log.debug("Contando órdenes de compra: {} - {}", fechaInicio, fechaFin);
         
         return ordenCompraRepository.findByFilters(null, null, fechaInicio, fechaFin, null, Pageable.unpaged())
             .getTotalElements();
@@ -319,7 +309,6 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional(readOnly = true)
     public String generarNumeroOrdenCompra() {
-        log.debug("Generando número de orden de compra");
         
         String prefix = "OC-";
         Integer maxNumero = ordenCompraRepository.findMaxNumeroByPrefix(prefix);
@@ -331,7 +320,6 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional(readOnly = true)
     public boolean existeNumeroOrdenCompra(String numero) {
-        log.debug("Verificando existencia de número de orden: {}", numero);
         
         return ordenCompraRepository.existsByNumero(numero);
     }
@@ -339,16 +327,15 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional(readOnly = true)
     public ResumenComprasDTO obtenerResumenCompras(LocalDate fechaInicio, LocalDate fechaFin) {
-        log.debug("Obteniendo resumen de compras: {} - {}", fechaInicio, fechaFin);
         
         // Obtener totales
         Long totalOrdenes = contarOrdenesCompra(fechaInicio, fechaFin);
         BigDecimal totalCompras = calcularTotalCompras(fechaInicio, fechaFin);
         
         // Obtener órdenes por estado
-        Long ordenesPendientes = ordenCompraRepository.findByFilters(null, null, fechaInicio, fechaFin, EstadoOrdenCompra.PENDIENTE, Pageable.unpaged()).getTotalElements();
-        Long ordenesEntregadas = ordenCompraRepository.findByFilters(null, null, fechaInicio, fechaFin, EstadoOrdenCompra.RECIBIDA, Pageable.unpaged()).getTotalElements();
-        Long ordenesCanceladas = ordenCompraRepository.findByFilters(null, null, fechaInicio, fechaFin, EstadoOrdenCompra.CANCELADA, Pageable.unpaged()).getTotalElements();
+        Long ordenesPendientes = ordenCompraRepository.findByFilters(null, null, fechaInicio, fechaFin, EstadoOrdenCompra.PENDIENTE.name(), Pageable.unpaged()).getTotalElements();
+        Long ordenesEntregadas = ordenCompraRepository.findByFilters(null, null, fechaInicio, fechaFin, EstadoOrdenCompra.RECIBIDA.name(), Pageable.unpaged()).getTotalElements();
+        Long ordenesCanceladas = ordenCompraRepository.findByFilters(null, null, fechaInicio, fechaFin, EstadoOrdenCompra.CANCELADA.name(), Pageable.unpaged()).getTotalElements();
         
         // Calcular subtotal e IGV (asumiendo 18% de IGV)
         BigDecimal totalSubtotal = totalCompras.divide(new BigDecimal("1.18"), 2, java.math.RoundingMode.HALF_UP);
@@ -378,7 +365,6 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional(readOnly = true)
     public List<OrdenCompraDTO> obtenerOrdenesPendientes() {
-        log.debug("Obteniendo órdenes de compra pendientes");
         
         return listarPorEstado(EstadoOrdenCompra.PENDIENTE);
     }
@@ -386,10 +372,9 @@ public class CompraServiceImpl implements CompraService {
     @Override
     @Transactional(readOnly = true)
     public List<OrdenCompraDTO> obtenerOrdenesVencidas() {
-        log.debug("Obteniendo órdenes de compra vencidas");
         
         LocalDate hoy = LocalDate.now();
-        return ordenCompraRepository.findByFilters(null, null, null, hoy, EstadoOrdenCompra.PENDIENTE, Pageable.unpaged())
+        return ordenCompraRepository.findByFilters(null, null, null, hoy, EstadoOrdenCompra.PENDIENTE.name(), Pageable.unpaged())
             .getContent().stream()
             .filter(orden -> orden.getFechaEntregaEsperada() != null && orden.getFechaEntregaEsperada().isBefore(hoy))
             .map(compraMapper::toDTO)

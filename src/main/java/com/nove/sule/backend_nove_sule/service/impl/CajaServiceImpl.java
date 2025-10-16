@@ -95,7 +95,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public Optional<CajaDTO> buscarCajaPorId(Long id) {
-        log.debug("Buscando caja por ID: {}", id);
         
         return cajaRepository.findByIdWithResponsable(id)
             .map(cajaMapper::toDTO);
@@ -104,7 +103,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public Optional<CajaDTO> buscarPorNombre(String nombre) {
-        log.debug("Buscando caja por nombre: {}", nombre);
         
         return cajaRepository.findByNombre(nombre)
             .map(cajaMapper::toDTO);
@@ -113,7 +111,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponseDTO<CajaDTO> listarCajas(Pageable pageable) {
-        log.debug("Listando cajas con paginación");
         
         Page<Caja> pageCajas = cajaRepository.findAll(pageable);
         List<CajaDTO> cajas = pageCajas.getContent().stream()
@@ -135,7 +132,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public List<CajaDTO> listarPorEstado(Caja.EstadoCaja estado) {
-        log.debug("Listando cajas por estado: {}", estado);
         
         return cajaRepository.findByEstadoOrderByNombreAsc(estado).stream()
             .map(cajaMapper::toDTO)
@@ -145,7 +141,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public List<CajaDTO> listarCajasAbiertas() {
-        log.debug("Listando cajas abiertas");
         
         return cajaRepository.findCajasAbiertas().stream()
             .map(cajaMapper::toDTO)
@@ -155,7 +150,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponseDTO<CajaDTO> buscarConFiltros(String nombre, Caja.EstadoCaja estado, Pageable pageable) {
-        log.debug("Buscando cajas con filtros - nombre: {}, estado: {}", nombre, estado);
         
         Page<Caja> pageCajas = cajaRepository.findByFilters(nombre, estado, pageable);
         
@@ -235,7 +229,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public List<CajaDTO> listarPorResponsable(Long responsableId) {
-        log.debug("Listando cajas por responsable: {}", responsableId);
         
         return cajaRepository.findByResponsableId(responsableId).stream()
             .map(cajaMapper::toDTO)
@@ -245,7 +238,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public boolean existeNombre(String nombre) {
-        log.debug("Verificando existencia de nombre de caja: {}", nombre);
         
         return cajaRepository.existsByNombre(nombre);
     }
@@ -304,7 +296,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public List<MovimientoCajaDTO> listarMovimientosCaja(Long cajaId) {
-        log.debug("Listando movimientos de caja: {}", cajaId);
         
         // En un sistema real, esto consultaría la tabla de movimientos
         // Por ahora retornamos una lista vacía
@@ -314,7 +305,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public List<MovimientoCajaDTO> listarMovimientosPorFecha(Long cajaId, LocalDate fecha) {
-        log.debug("Listando movimientos de caja {} por fecha: {}", cajaId, fecha);
         
         // En un sistema real, esto consultaría la tabla de movimientos por fecha
         return List.of();
@@ -323,7 +313,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public List<MovimientoCajaDTO> listarMovimientosPorRangoFechas(Long cajaId, LocalDate fechaInicio, LocalDate fechaFin) {
-        log.debug("Listando movimientos de caja {} por rango: {} - {}", cajaId, fechaInicio, fechaFin);
         
         // En un sistema real, esto consultaría la tabla de movimientos por rango de fechas
         return List.of();
@@ -332,7 +321,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public BigDecimal calcularSaldoActual(Long cajaId) {
-        log.debug("Calculando saldo actual de caja: {}", cajaId);
         
         Caja caja = cajaRepository.findById(cajaId)
             .orElseThrow(() -> new RuntimeException("Caja no encontrada"));
@@ -343,7 +331,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public ResumenCajaDTO obtenerResumenCaja(Long cajaId, LocalDate fecha) {
-        log.debug("Obteniendo resumen de caja {} para fecha: {}", cajaId, fecha);
         
         Caja caja = cajaRepository.findById(cajaId)
             .orElseThrow(() -> new RuntimeException("Caja no encontrada"));
@@ -370,7 +357,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public List<ResumenCajaDTO> obtenerResumenTodasLasCajas(LocalDate fecha) {
-        log.debug("Obteniendo resumen de todas las cajas para fecha: {}", fecha);
         
         return cajaRepository.findAll().stream()
             .map(caja -> obtenerResumenCaja(caja.getId(), fecha))
@@ -380,7 +366,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public BigDecimal calcularTotalIngresos(Long cajaId, LocalDate fecha) {
-        log.debug("Calculando total de ingresos de caja {} para fecha: {}", cajaId, fecha);
         
         // En un sistema real, esto sumaría los movimientos de tipo INGRESO
         return BigDecimal.ZERO;
@@ -389,7 +374,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public BigDecimal calcularTotalEgresos(Long cajaId, LocalDate fecha) {
-        log.debug("Calculando total de egresos de caja {} para fecha: {}", cajaId, fecha);
         
         // En un sistema real, esto sumaría los movimientos de tipo EGRESO
         return BigDecimal.ZERO;
@@ -398,7 +382,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public Optional<MovimientoCajaDTO> obtenerUltimoMovimiento(Long cajaId) {
-        log.debug("Obteniendo último movimiento de caja: {}", cajaId);
         
         // En un sistema real, esto consultaría el último movimiento de la tabla
         return Optional.empty();
@@ -407,7 +390,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public boolean validarCajaActiva(Long cajaId) {
-        log.debug("Validando si caja {} está activa", cajaId);
         
         return cajaRepository.findById(cajaId)
             .map(caja -> caja.getEstado() == Caja.EstadoCaja.ABIERTA)
@@ -417,7 +399,6 @@ public class CajaServiceImpl implements CajaService {
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponseDTO<MovimientoCajaDTO> listarMovimientosConPaginacion(Long cajaId, Pageable pageable) {
-        log.debug("Listando movimientos de caja {} con paginación", cajaId);
         
         // En un sistema real, esto consultaría la tabla de movimientos con paginación
         return PaginatedResponseDTO.<MovimientoCajaDTO>builder()

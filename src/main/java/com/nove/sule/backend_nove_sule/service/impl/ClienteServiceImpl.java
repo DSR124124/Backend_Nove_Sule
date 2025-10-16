@@ -98,7 +98,6 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional(readOnly = true)
     public Optional<ClienteDTO> buscarPorId(Long id) {
-        log.debug("Buscando cliente por ID: {}", id);
         
         return clienteRepository.findById(id)
             .map(clienteMapper::toDTO);
@@ -107,7 +106,6 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Cliente> buscarPorTipoYNumeroDocumento(TipoDocumento tipoDocumento, String numeroDocumento) {
-        log.debug("Buscando cliente por tipo y número: {} {}", tipoDocumento, numeroDocumento);
         
         return clienteRepository.findByTipoDocumentoAndNumeroDocumento(tipoDocumento, numeroDocumento);
     }
@@ -115,7 +113,6 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional(readOnly = true)
     public Optional<Cliente> buscarPorEmail(String email) {
-        log.debug("Buscando cliente por email: {}", email);
         
         return clienteRepository.findByEmail(email);
     }
@@ -123,7 +120,6 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponseDTO<ClienteDTO> listarTodos(Pageable pageable) {
-        log.debug("Listando todos los clientes con paginación");
         
         Page<Cliente> pageClientes = clienteRepository.findAll(pageable);
         List<ClienteDTO> clientes = pageClientes.getContent().stream()
@@ -145,7 +141,6 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional(readOnly = true)
     public List<ClienteDTO> listarPorEstado(Estado estado) {
-        log.debug("Listando clientes por estado: {}", estado);
         
         return clienteRepository.findByEstadoOrderByNombresAsc(estado).stream()
             .map(clienteMapper::toDTO)
@@ -155,7 +150,6 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional(readOnly = true)
     public List<ClienteDTO> listarPorTipoDocumento(TipoDocumento tipoDocumento) {
-        log.debug("Listando clientes por tipo de documento: {}", tipoDocumento);
         
         return clienteRepository.findByTipoDocumentoOrderByNombresAsc(tipoDocumento).stream()
             .map(clienteMapper::toDTO)
@@ -168,8 +162,6 @@ public class ClienteServiceImpl implements ClienteService {
                                                              String razonSocial, String email,
                                                              TipoDocumento tipoDocumento, Estado estado, 
                                                              Pageable pageable) {
-        log.debug("Buscando clientes con filtros - nombres: {}, apellidos: {}, razonSocial: {}, email: {}, tipo: {}, estado: {}", 
-                 nombres, apellidos, razonSocial, email, tipoDocumento, estado);
         
         Page<Cliente> pageClientes = clienteRepository.findByFilters(
             nombres, apellidos, razonSocial, email, tipoDocumento, estado, pageable);
@@ -236,7 +228,6 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional(readOnly = true)
     public List<ClienteResponseDTO> buscarPorNombre(String nombre) {
-        log.debug("Buscando clientes por nombre: {}", nombre);
         
         return clienteRepository.findByNombreContainingIgnoreCase(nombre).stream()
             .map(clienteMapper::toResponseDTO)
@@ -246,7 +237,6 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     @Transactional(readOnly = true)
     public List<ClienteResponseDTO> listarActivos() {
-        log.debug("Listando clientes activos");
         
         return clienteRepository.findByEstadoOrderByNombresAsc(Estado.ACTIVO).stream()
             .map(clienteMapper::toResponseDTO)

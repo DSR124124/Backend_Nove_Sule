@@ -34,19 +34,28 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     @Query("SELECT p FROM Producto p LEFT JOIN FETCH p.categoria LEFT JOIN FETCH p.marca LEFT JOIN FETCH p.proveedor WHERE p.id = :id")
     Optional<Producto> findByIdWithRelations(@Param("id") Long id);
 
-    @Query("SELECT p FROM Producto p WHERE " +
-           "(:nombre IS NULL OR p.nombre LIKE %:nombre%) AND " +
-           "(:codigo IS NULL OR p.codigo LIKE %:codigo%) AND " +
-           "(:categoriaId IS NULL OR p.categoria.id = :categoriaId) AND " +
-           "(:marcaId IS NULL OR p.marca.id = :marcaId) AND " +
-           "(:proveedorId IS NULL OR p.proveedor.id = :proveedorId) AND " +
-           "(:estado IS NULL OR p.estado = :estado)")
+    @Query(value = "SELECT p.* FROM productos p " +
+           "WHERE (:nombre IS NULL OR p.nombre LIKE CONCAT('%', :nombre, '%')) " +
+           "AND (:codigo IS NULL OR p.codigo LIKE CONCAT('%', :codigo, '%')) " +
+           "AND (:categoriaId IS NULL OR p.categoria_id = :categoriaId) " +
+           "AND (:marcaId IS NULL OR p.marca_id = :marcaId) " +
+           "AND (:proveedorId IS NULL OR p.proveedor_id = :proveedorId) " +
+           "AND (:estado IS NULL OR p.estado = :estado) " +
+           "ORDER BY p.nombre ASC",
+           countQuery = "SELECT COUNT(*) FROM productos p " +
+           "WHERE (:nombre IS NULL OR p.nombre LIKE CONCAT('%', :nombre, '%')) " +
+           "AND (:codigo IS NULL OR p.codigo LIKE CONCAT('%', :codigo, '%')) " +
+           "AND (:categoriaId IS NULL OR p.categoria_id = :categoriaId) " +
+           "AND (:marcaId IS NULL OR p.marca_id = :marcaId) " +
+           "AND (:proveedorId IS NULL OR p.proveedor_id = :proveedorId) " +
+           "AND (:estado IS NULL OR p.estado = :estado)",
+           nativeQuery = true)
     Page<Producto> findByFilters(@Param("nombre") String nombre,
                                 @Param("codigo") String codigo,
                                 @Param("categoriaId") Long categoriaId,
                                 @Param("marcaId") Long marcaId,
                                 @Param("proveedorId") Long proveedorId,
-                                @Param("estado") Estado estado,
+                                @Param("estado") String estado,
                                 Pageable pageable);
 
     @Query("SELECT p FROM Producto p WHERE p.stock <= p.stockMinimo AND p.estado = 'ACTIVO'")

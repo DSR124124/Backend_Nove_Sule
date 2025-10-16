@@ -189,7 +189,7 @@ public class ProductoServiceImpl implements ProductoService {
                                                             Long proveedorId, Estado estado,
                                                             Pageable pageable) {
         Page<Producto> productos = productoRepository.findByFilters(
-            nombre, codigo, categoriaId, marcaId, proveedorId, estado, pageable);
+            nombre, codigo, categoriaId, marcaId, proveedorId, estado != null ? estado.name() : null, pageable);
         
         List<ProductoDTO> content = productos.getContent()
             .stream()

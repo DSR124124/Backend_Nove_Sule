@@ -56,7 +56,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 log.error("No se pudo obtener el username del token JWT: {}", e.getMessage());
             }
         } else {
-            log.debug("JWT Token no comienza con Bearer String");
         }
 
         // Una vez obtenido el token, validar

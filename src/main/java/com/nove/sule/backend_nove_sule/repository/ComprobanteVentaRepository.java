@@ -34,21 +34,31 @@ public interface ComprobanteVentaRepository extends JpaRepository<ComprobanteVen
     @Query("SELECT c FROM ComprobanteVenta c LEFT JOIN FETCH c.cliente LEFT JOIN FETCH c.detalles WHERE c.id = :id")
     Optional<ComprobanteVenta> findByIdWithDetails(@Param("id") Long id);
 
-    @Query("SELECT c FROM ComprobanteVenta c WHERE " +
-           "(:tipoComprobante IS NULL OR c.tipoComprobante = :tipoComprobante) AND " +
-           "(:serie IS NULL OR c.serie = :serie) AND " +
-           "(:numero IS NULL OR c.numero LIKE CONCAT('%', :numero, '%')) AND " +
-           "(:clienteId IS NULL OR c.cliente.id = :clienteId) AND " +
-           "(:fechaInicio IS NULL OR c.fechaEmision >= :fechaInicio) AND " +
-           "(:fechaFin IS NULL OR c.fechaEmision <= :fechaFin) AND " +
-           "(:estado IS NULL OR c.estado = :estado)")
-    Page<ComprobanteVenta> findByFilters(@Param("tipoComprobante") TipoComprobante tipoComprobante,
+    @Query(value = "SELECT cv.* FROM comprobantes_venta cv " +
+           "WHERE (:tipoComprobante IS NULL OR cv.tipo_comprobante = :tipoComprobante) " +
+           "AND (:serie IS NULL OR cv.serie = :serie) " +
+           "AND (:numero IS NULL OR cv.numero LIKE CONCAT('%', :numero, '%')) " +
+           "AND (:clienteId IS NULL OR cv.cliente_id = :clienteId) " +
+           "AND (:fechaInicio IS NULL OR cv.fecha_emision >= :fechaInicio) " +
+           "AND (:fechaFin IS NULL OR cv.fecha_emision <= :fechaFin) " +
+           "AND (:estado IS NULL OR cv.estado = :estado) " +
+           "ORDER BY cv.fecha_emision DESC",
+           countQuery = "SELECT COUNT(*) FROM comprobantes_venta cv " +
+           "WHERE (:tipoComprobante IS NULL OR cv.tipo_comprobante = :tipoComprobante) " +
+           "AND (:serie IS NULL OR cv.serie = :serie) " +
+           "AND (:numero IS NULL OR cv.numero LIKE CONCAT('%', :numero, '%')) " +
+           "AND (:clienteId IS NULL OR cv.cliente_id = :clienteId) " +
+           "AND (:fechaInicio IS NULL OR cv.fecha_emision >= :fechaInicio) " +
+           "AND (:fechaFin IS NULL OR cv.fecha_emision <= :fechaFin) " +
+           "AND (:estado IS NULL OR cv.estado = :estado)",
+           nativeQuery = true)
+    Page<ComprobanteVenta> findByFilters(@Param("tipoComprobante") String tipoComprobante,
                                         @Param("serie") String serie,
                                         @Param("numero") String numero,
                                         @Param("clienteId") Long clienteId,
                                         @Param("fechaInicio") LocalDateTime fechaInicio,
                                         @Param("fechaFin") LocalDateTime fechaFin,
-                                        @Param("estado") Estado estado,
+                                        @Param("estado") String estado,
                                         Pageable pageable);
 
     @Query("SELECT COALESCE(MAX(c.numero), '00000000') FROM ComprobanteVenta c " +

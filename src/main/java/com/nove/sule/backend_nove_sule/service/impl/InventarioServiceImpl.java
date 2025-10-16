@@ -98,7 +98,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public Optional<MovimientoInventarioDTO> buscarMovimientoPorId(Long id) {
-        log.debug("Buscando movimiento de inventario por ID: {}", id);
         
         return movimientoInventarioRepository.findById(id)
             .map(inventarioMapper::toDTO);
@@ -107,7 +106,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public List<MovimientoInventarioDTO> listarMovimientosProducto(Long productoId) {
-        log.debug("Listando movimientos del producto: {}", productoId);
         
         return movimientoInventarioRepository.findByProductoIdOrderByFechaMovimientoDesc(productoId).stream()
             .map(inventarioMapper::toDTO)
@@ -117,7 +115,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public List<MovimientoInventarioDTO> listarMovimientosPorTipo(TipoMovimiento tipoMovimiento) {
-        log.debug("Listando movimientos por tipo: {}", tipoMovimiento);
         
         return movimientoInventarioRepository.findByTipoMovimientoOrderByFechaMovimientoDesc(tipoMovimiento).stream()
             .map(inventarioMapper::toDTO)
@@ -131,9 +128,8 @@ public class InventarioServiceImpl implements InventarioService {
                                                                                      LocalDateTime fechaInicio,
                                                                                      LocalDateTime fechaFin,
                                                                                      Pageable pageable) {
-        log.debug("Buscando movimientos con filtros - producto: {}, tipo: {}", productoId, tipoMovimiento);
         
-        Page<MovimientoInventario> pageMovimientos = movimientoInventarioRepository.findByFilters(
+        Page<MovimientoInventario> pageMovimientos = movimientoInventarioRepository.findByFiltersCustom(
             productoId, tipoMovimiento, fechaInicio, fechaFin, pageable);
         
         List<MovimientoInventarioDTO> movimientos = pageMovimientos.getContent().stream()
@@ -155,7 +151,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public List<MovimientoInventarioDTO> listarMovimientosPorFecha(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        log.debug("Listando movimientos por fecha: {} - {}", fechaInicio, fechaFin);
         
         return movimientoInventarioRepository.findByFechaRange(fechaInicio, fechaFin).stream()
             .map(inventarioMapper::toDTO)
@@ -165,7 +160,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public List<MovimientoInventarioDTO> listarMovimientosOrdenCompra(Long ordenCompraId) {
-        log.debug("Listando movimientos de orden de compra: {}", ordenCompraId);
         
         return movimientoInventarioRepository.findByOrdenCompraId(ordenCompraId).stream()
             .map(inventarioMapper::toDTO)
@@ -175,7 +169,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public List<MovimientoInventarioDTO> listarMovimientosComprobanteVenta(Long comprobanteVentaId) {
-        log.debug("Listando movimientos de comprobante de venta: {}", comprobanteVentaId);
         
         return movimientoInventarioRepository.findByComprobanteVentaId(comprobanteVentaId).stream()
             .map(inventarioMapper::toDTO)
@@ -185,7 +178,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public Optional<MovimientoInventarioDTO> obtenerUltimoMovimientoProducto(Long productoId) {
-        log.debug("Obteniendo último movimiento del producto: {}", productoId);
         
         return movimientoInventarioRepository.findUltimoMovimientoByProductoId(productoId)
             .map(inventarioMapper::toDTO);
@@ -194,7 +186,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public Integer calcularStockActual(Long productoId) {
-        log.debug("Calculando stock actual del producto: {}", productoId);
         
         Producto producto = productoRepository.findById(productoId)
             .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
@@ -276,7 +267,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public List<StockBajoDTO> listarProductosConStockBajo() {
-        log.debug("Listando productos con stock bajo");
         
         return productoRepository.findByStockLessThanEqualStockMinimo().stream()
             .map(inventarioMapper::toStockBajoDTO)
@@ -286,7 +276,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public ResumenInventarioDTO obtenerResumenProducto(Long productoId, LocalDate fecha) {
-        log.debug("Obteniendo resumen del producto {} para fecha: {}", productoId, fecha);
         
         Producto producto = productoRepository.findById(productoId)
             .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
@@ -327,7 +316,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public List<ResumenInventarioDTO> obtenerResumenGeneral(LocalDate fecha) {
-        log.debug("Obteniendo resumen general de inventario para fecha: {}", fecha);
         
         return productoRepository.findAll().stream()
             .map(producto -> obtenerResumenProducto(producto.getId(), fecha))
@@ -337,7 +325,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public BigDecimal calcularValorTotalInventario() {
-        log.debug("Calculando valor total del inventario");
         
         return productoRepository.findAll().stream()
             .map(producto -> calcularValorInventarioProducto(producto.getId()))
@@ -347,7 +334,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public BigDecimal calcularValorInventarioProducto(Long productoId) {
-        log.debug("Calculando valor del inventario del producto: {}", productoId);
         
         Producto producto = productoRepository.findById(productoId)
             .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
@@ -362,7 +348,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public List<MovimientoInventarioDTO> obtenerEstadisticasMovimientos(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        log.debug("Obteniendo estadísticas de movimientos: {} - {}", fechaInicio, fechaFin);
         
         return movimientoInventarioRepository.findByFechaRange(fechaInicio, fechaFin).stream()
             .map(inventarioMapper::toDTO)
@@ -372,7 +357,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public List<MovimientoInventarioDTO> listarMovimientosRecientes(int limite) {
-        log.debug("Listando {} movimientos recientes", limite);
         
         LocalDateTime fechaLimite = LocalDateTime.now().minusDays(30);
         return movimientoInventarioRepository.findMovimientosRecientes(fechaLimite).stream()
@@ -384,7 +368,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public boolean validarStockSuficiente(Long productoId, Integer cantidad) {
-        log.debug("Validando stock suficiente para producto {}: cantidad {}", productoId, cantidad);
         
         Integer stockActual = calcularStockActual(productoId);
         return stockActual >= cantidad;
@@ -393,7 +376,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public List<MovimientoInventarioDTO> obtenerHistorialStock(Long productoId, LocalDate fechaInicio, LocalDate fechaFin) {
-        log.debug("Obteniendo historial de stock del producto {}: {} - {}", productoId, fechaInicio, fechaFin);
         
         LocalDateTime fechaInicioDateTime = fechaInicio.atStartOfDay();
         LocalDateTime fechaFinDateTime = fechaFin.plusDays(1).atStartOfDay();
@@ -407,7 +389,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public BigDecimal calcularPrecioPromedio(Long productoId) {
-        log.debug("Calculando precio promedio del producto: {}", productoId);
         
         // En un sistema real, esto calcularía el precio promedio basándose en los movimientos de entrada
         Producto producto = productoRepository.findById(productoId)
@@ -419,7 +400,6 @@ public class InventarioServiceImpl implements InventarioService {
     @Override
     @Transactional(readOnly = true)
     public List<ResumenInventarioDTO> obtenerProductosProximosVencer(int dias) {
-        log.debug("Obteniendo productos próximos a vencer en {} días", dias);
         
         LocalDate fechaLimite = LocalDate.now().plusDays(dias);
         
@@ -434,9 +414,8 @@ public class InventarioServiceImpl implements InventarioService {
                                                                  TipoMovimiento tipoMovimiento,
                                                                  LocalDateTime fechaInicio,
                                                                  LocalDateTime fechaFin) {
-        log.debug("Generando reporte de movimientos - producto: {}, tipo: {}", productoId, tipoMovimiento);
         
-        return movimientoInventarioRepository.findByFilters(
+        return movimientoInventarioRepository.findByFiltersCustom(
             productoId, tipoMovimiento, fechaInicio, fechaFin, Pageable.unpaged()).getContent().stream()
             .map(inventarioMapper::toDTO)
             .toList();
